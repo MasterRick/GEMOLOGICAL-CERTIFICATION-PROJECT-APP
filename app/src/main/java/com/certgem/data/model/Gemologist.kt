@@ -1,11 +1,8 @@
-package com.certgem.data.model
+package com.certgem.model
 
-data class Gemologist  (
+data class Gemologist(
     val id: String,
-    val userId: String,
-    val publicName: String,
-    val phone: String,
+    val name: String,
     val address: String,
-    val professionalLicense: String,
-    val certificates: List<Certificate>
+    val distanceFromUser: Double // em km, para ordenação
 )
