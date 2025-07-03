@@ -12,9 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.certgem.viewmodel.MainViewModel
+import com.certgem.model.Gemologist
 import com.certgem.ui.nav.BottomNavBar
 import com.certgem.ui.nav.BottomNavItem
-import com.certgem.viewmodel.MainViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,39 +40,92 @@ fun FindGemologistsScreen(navController: NavController, viewModel: MainViewModel
         },
         bottomBar = { BottomNavBar(navController = navController) }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Placeholder para o mapa
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(200.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Text(
-                        "[ Futura implementação do Mapa com API do Google ]",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
+        // --- Estrutura principal com abas ---
+        TabScreen(
+            modifier = Modifier.padding(paddingValues),
+            gemologists = gemologists
+        )
+    }
+}
+
+@Composable
+private fun TabScreen(modifier: Modifier = Modifier, gemologists: List<Gemologist>) {
+    // Estado para controlar o índice da aba selecionada (0 para Mapa, 1 para Lista)
+    var tabIndex by remember { mutableStateOf(0) }
+
+    // Lista com os títulos das abas
+    val tabs = listOf("Mapa", "Lista")
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        // O componente TabRow que exibe as abas
+        TabRow(selectedTabIndex = tabIndex) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = tabIndex == index,
+                    onClick = { tabIndex = index },
+                    text = { Text(text = title) }
+                )
             }
+        }
 
-            Text("Gemólogos Próximos", style = MaterialTheme.typography.titleLarge)
+        // Exibe o conteúdo correspondente à aba selecionada
+        when (tabIndex) {
+            0 -> MapContent()
+            1 -> ListContent(gemologists = gemologists)
+        }
+    }
+}
 
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(gemologists) { gemologist ->
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(Modifier.padding(16.dp)) {
-                            Text(gemologist.name, style = MaterialTheme.typography.titleMedium)
-                            Text(gemologist.address, style = MaterialTheme.typography.bodyMedium)
-                            Text("~${gemologist.distanceFromUser} km de distância", style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
+// Composable para o conteúdo da aba "Mapa"
+@Composable
+private fun MapContent() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.8f) // Ocupa 80% da altura disponível
+        ) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                Text(
+                    "[ Futura implementação do Mapa com API do Google ]\nExibirá os pins dos gemólogos próximos.",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
+    }
+}
+
+// Composable para o conteúdo da aba "Lista"
+@Composable
+private fun ListContent(gemologists: List<Gemologist>) {
+    LazyColumn(
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        item {
+            Text(
+                "Gemólogos ordenados por proximidade",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+        }
+        items(gemologists) { gemologist ->
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp)) {
+                    Text(gemologist.name, style = MaterialTheme.typography.titleMedium)
+                    Text(gemologist.address, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        "~${gemologist.distanceFromUser} km de distância",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
