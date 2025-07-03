@@ -18,6 +18,7 @@ fun RegisterScreen(navController: NavController, viewModel: MainViewModel) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     Column(
@@ -33,7 +34,7 @@ fun RegisterScreen(navController: NavController, viewModel: MainViewModel) {
         OutlinedTextField(
             value = name,
             onValueChange = { name = it },
-            label = { Text("Nome Completo") },
+            label = { Text("Nome") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -51,11 +52,22 @@ fun RegisterScreen(navController: NavController, viewModel: MainViewModel) {
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation()
         )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = { confirmPassword = it },
+            label = { Text("Confirmar senha") },
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = PasswordVisualTransformation()
+        )
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                if (viewModel.register(name, email, password)) {
+                if (password != confirmPassword) {
+                    Toast.makeText(context, "As senhas não coincidem.", Toast.LENGTH_SHORT).show()
+                    return@Button
+                } else if (viewModel.register(name, email, password)) {
                     Toast.makeText(context, "Cadastro realizado!", Toast.LENGTH_SHORT).show()
                     navController.navigate(BottomNavItem.Home.route) {
                         popUpTo("login") { inclusive = true }

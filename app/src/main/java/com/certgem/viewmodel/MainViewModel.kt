@@ -30,7 +30,7 @@ class MainViewModel : ViewModel() {
     fun login(email: String, pass: String): Boolean {
         // Lógica de login simulada
         if (email.isNotBlank() && pass.isNotBlank()) {
-            _currentUser.value = User(id = "user01", name = "Ana Gema", email = email)
+            _currentUser.value = User(id = "user01", name = "Usuário", email = email)
             return true
         }
         return false
