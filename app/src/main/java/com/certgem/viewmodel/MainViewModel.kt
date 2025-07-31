@@ -1,6 +1,9 @@
 package com.certgem.viewmodel
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.certgem.api.APIService
 import com.certgem.model.Certificate
 import com.certgem.model.Gemologist
 import com.certgem.model.User
@@ -8,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.Date
 
-class MainViewModel : ViewModel() {
+class MainViewModel(private val service : APIService) : ViewModel() {
 
     // Simula um usuário logado
     private val _currentUser = MutableStateFlow<User?>(null)
@@ -23,29 +26,46 @@ class MainViewModel : ViewModel() {
     val gemologists = _gemologists.asStateFlow()
 
     init {
-        // Carga de dados iniciais para simulação
         loadInitialData()
     }
 
-    fun login(email: String, pass: String): Boolean {
-        // Lógica de login simulada
+    fun login(email: String, pass: String, onResult: (Boolean) -> Unit) {
         if (email.isNotBlank() && pass.isNotBlank()) {
-            _currentUser.value = User(id = "user01", name = "Usuário", email = email)
-            return true
+            service.login(email, pass) { success ->
+                if (success != null) {
+                    println(success.userId)
+                    _currentUser.value = User(id = success.userId.toString(), name = email, email = email, token=success.token.toString())
+                    onResult(true)
+                } else {
+                    onResult(false)
+                }
+            }
+        } else {
+            onResult(false)
         }
-        return false
     }
 
-    fun register(name: String, email: String, pass: String): Boolean {
-        // Lógica de registro simulada
+    fun register(name: String, email: String, pass: String, onResult: (Boolean) -> Unit) {
         if (name.isNotBlank() && email.isNotBlank() && pass.isNotBlank()) {
-            // Em um app real, você criaria o usuário no backend aqui.
-            // Para o protótipo, vamos apenas logar o novo usuário.
-            _currentUser.value = User(id = "user02", name = name, email = email)
-            return true
+            service.register(name, email, pass) { success ->
+                if (success != null) {
+                    println(success.userId)
+                    _currentUser.value = User(
+                        id = success.userId.toString(),
+                        name = email,
+                        email = email,
+                        token = success.token
+                    )
+                    onResult(true)
+                } else {
+                    onResult(false)
+                }
+            }
+        } else {
+            onResult(false)
         }
-        return false
     }
+
 
     fun logout() {
         _currentUser.value = null
@@ -71,5 +91,15 @@ class MainViewModel : ViewModel() {
             Gemologist("gem02", "Mariana Alves", "Av. dos Diamantes, 45, Rio de Janeiro - RJ", 5.8),
             Gemologist("gem03", "Pedro Lima", "Praça do Ouro, 789, Belo Horizonte - MG", 10.2)
         ).sortedBy { it.distanceFromUser }
+    }
+}
+
+class MainViewModelFactory(private val service : APIService) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
+            return MainViewModel(service) as T;
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -47,13 +47,18 @@ fun LoginScreen(navController: NavController, viewModel: MainViewModel) {
 
         Button(
             onClick = {
-                if (viewModel.login(email, password)) {
-                    Toast.makeText(context, "Login bem-sucedido!", Toast.LENGTH_SHORT).show()
-                    navController.navigate(BottomNavItem.Home.route) {
-                        popUpTo("login") { inclusive = true }
-                    }
-                } else {
-                    Toast.makeText(context, "Email ou senha inválidos.", Toast.LENGTH_SHORT).show()
+                viewModel.login(email, password) {
+                     success ->
+                        if (success) {
+                            Toast.makeText(context, "Login bem-sucedido!", Toast.LENGTH_SHORT)
+                                .show()
+                            navController.navigate(BottomNavItem.Home.route) {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        }
+                        else {
+                            Toast.makeText(context, "Email ou senha inválidos.", Toast.LENGTH_SHORT).show()
+                        }
                 }
             },
             modifier = Modifier.fillMaxWidth()

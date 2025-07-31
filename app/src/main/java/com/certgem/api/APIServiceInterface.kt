@@ -1,14 +1,19 @@
 package com.certgem.api
 
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 
 interface APIServiceInterface {
     companion object {
-        const val BASE_URL = "https://api.weatherapi.com/v1/"
+        const val BASE_URL = "http://10.0.2.2:8080/"
     }
 
-    @GET("search.json?key=&lang=pt_br")
-    fun search(@Query("q") query: String): Call<List<API>?>
+    @POST("usuario/login")
+    fun login(@Body request: LoginRequest): Call<LoginResponse>
+
+    @POST("usuario/sendEmailCodeGemologo")
+    fun register(@Body request: CadastroRequest): Call<LoginResponse>
 }

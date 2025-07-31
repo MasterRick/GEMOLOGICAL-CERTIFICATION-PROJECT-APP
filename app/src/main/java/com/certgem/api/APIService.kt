@@ -1,38 +1,67 @@
 package com.certgem.api
 
 import android.util.Log
-import com.certgem.api.API
-import com.certgem.api.APIServiceInterface
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
+import retrofit2.*
 import retrofit2.converter.gson.GsonConverterFactory
 
 class APIService {
-    private var weatherAPI: APIServiceInterface
+
+    private var api: APIServiceInterface
+
     init {
-        val retrofitAPI = Retrofit.Builder().baseUrl(APIServiceInterface.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create()).build()
-        weatherAPI = retrofitAPI.create(APIServiceInterface::class.java)
+        val retrofit = Retrofit.Builder()
+            .baseUrl(APIServiceInterface.BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        api = retrofit.create(APIServiceInterface::class.java)
     }
-    fun getName(lat: Double, lng: Double, onResponse : (String?) -> Unit ) {
-        search("$lat,$lng") { loc -> onResponse (loc?.name) }
-    }
-    fun     getLocation(name: String, onResponse: (lat:Double?, long:Double?) -> Unit) {
-        search(name) { loc -> onResponse (loc?.lat, loc?.lon) }
-    }
-    private fun search(query: String, onResponse : (API?) -> Unit) {
-        val call: Call<List<API>?> = weatherAPI.search(query)
-        call.enqueue(object : Callback<List<API>?> {
-            override fun onResponse(call: Call<List<API>?>,
-                                    response: Response<List<API>?>
-            ) {
-                onResponse(response.body()?.let {if (it.isNotEmpty()) it[0] else null})
+
+    fun login(username: String, password: String, onResult: (LoginResponse?) -> Unit) {
+        val request = LoginRequest(username, password)
+
+        api.login(request).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                if (response.isSuccessful) {
+                    val loginResponse = response.body()
+                    onResult(loginResponse)
+                    Log.d("Login", "Sucesso! Token: ${loginResponse?.token}")
+                } else {
+                    onResult(null)
+                    Log.e("Login", "Erro de resposta: ${response.code()}")
+                }
             }
-            override fun onFailure(call: Call<List<API>?>, t: Throwable) {
-                Log.w("WeatherApp WARNING", "" + t.message)
-                onResponse(null)
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                onResult(null)
+                Log.e("Login", "Falha na requisição: ${t.message}")
+            }
+        })
+    }
+
+    fun register(
+        username: String,
+        email: String,
+        password: String,
+        onResult: (LoginResponse?) -> Unit
+    ) {
+        val request = CadastroRequest(username, email, password)
+
+        api.register(request).enqueue(object : Callback<LoginResponse> {
+            override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
+                if (response.isSuccessful) {
+                    val registerResponse = response.body()
+                    onResult(registerResponse)
+                    Log.d("Register", "Cadastro realizado com sucesso! ID: ${registerResponse?.userId}")
+                } else {
+                    onResult(null)
+                    Log.e("Register", "Erro no cadastro: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<LoginResponse>, t: Throwable) {
+                onResult(null)
+                Log.e("Register", "Falha na requisição: ${t.message}")
             }
         })
     }

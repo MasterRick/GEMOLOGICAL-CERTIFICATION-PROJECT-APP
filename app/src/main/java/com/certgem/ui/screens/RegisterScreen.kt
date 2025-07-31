@@ -67,13 +67,19 @@ fun RegisterScreen(navController: NavController, viewModel: MainViewModel) {
                 if (password != confirmPassword) {
                     Toast.makeText(context, "As senhas não coincidem.", Toast.LENGTH_SHORT).show()
                     return@Button
-                } else if (viewModel.register(name, email, password)) {
-                    Toast.makeText(context, "Cadastro realizado!", Toast.LENGTH_SHORT).show()
-                    navController.navigate(BottomNavItem.Home.route) {
-                        popUpTo("login") { inclusive = true }
+                }
+                else{
+                    viewModel.register(name, email, password){ success ->
+                            if (success) {
+                                Toast.makeText(context, "Cadastro realizado!", Toast.LENGTH_SHORT).show()
+                                navController.navigate(BottomNavItem.Home.route) {
+                                    popUpTo("login") { inclusive = true }
+                                }
+                            }
+                            else {
+                                Toast.makeText(context, "Erro ao realizar o cadastro", Toast.LENGTH_SHORT).show()
+                            }
                     }
-                } else {
-                    Toast.makeText(context, "Preencha todos os campos.", Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier.fillMaxWidth()
