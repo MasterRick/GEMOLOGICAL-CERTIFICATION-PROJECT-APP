@@ -23,9 +23,9 @@ fun HistoryScreen(navController: NavController, viewModel: MainViewModel) {
     var searchQuery by remember { mutableStateOf("") }
 
     val filteredCertificates = certificates.filter {
-        it.gemName.contains(searchQuery, ignoreCase = true) ||
-                it.number.contains(searchQuery, ignoreCase = true) ||
-                it.owner.contains(searchQuery, ignoreCase = true)
+        it.numeroCertificado.contains(searchQuery, ignoreCase = true) ||
+                it.dataCriacao.toString().contains(searchQuery, ignoreCase = true) ||
+                it.observacoes.toString().contains(searchQuery, ignoreCase = true)
     }
 
     Scaffold(
@@ -73,10 +73,9 @@ fun HistoryScreen(navController: NavController, viewModel: MainViewModel) {
                 items(filteredCertificates) { certificate ->
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(16.dp)) {
-                            Text(certificate.gemName, style = MaterialTheme.typography.titleMedium)
-                            Text("Nº: ${certificate.number}", style = MaterialTheme.typography.bodySmall)
-                            Text("Proprietário: ${certificate.owner}", style = MaterialTheme.typography.bodyMedium)
-                            Text("Data: ${certificate.emissionDate}", style = MaterialTheme.typography.bodySmall)
+                            Text("Nº: ${certificate.numeroCertificado}", style = MaterialTheme.typography.bodySmall)
+                            Text("Observações: ${certificate.observacoes}", style = MaterialTheme.typography.bodyMedium)
+                            Text("Data: ${certificate.dataCriacao}", style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }

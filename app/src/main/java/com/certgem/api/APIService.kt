@@ -2,19 +2,15 @@ package com.certgem.api
 
 import android.util.Log
 import retrofit2.*
-import retrofit2.converter.gson.GsonConverterFactory
 
 class APIService {
 
     private var api: APIServiceInterface
+    public var token = "";
 
     init {
-        val retrofit = Retrofit.Builder()
-            .baseUrl(APIServiceInterface.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
 
-        api = retrofit.create(APIServiceInterface::class.java)
+        api = RetrofitClient.getClient(token)
     }
 
     fun login(username: String, password: String, onResult: (LoginResponse?) -> Unit) {
@@ -25,6 +21,7 @@ class APIService {
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
                     onResult(loginResponse)
+                    api = RetrofitClient.getClient(loginResponse?.token )
                     Log.d("Login", "Sucesso! Token: ${loginResponse?.token}")
                 } else {
                     onResult(null)
@@ -52,6 +49,7 @@ class APIService {
                 if (response.isSuccessful) {
                     val registerResponse = response.body()
                     onResult(registerResponse)
+                    api = RetrofitClient.getClient(registerResponse?.token )
                     Log.d("Register", "Cadastro realizado com sucesso! ID: ${registerResponse?.userId}")
                 } else {
                     onResult(null)
@@ -65,4 +63,31 @@ class APIService {
             }
         })
     }
+
+    fun getCertificates(
+        userId: Long,
+        onResult: (List<CertificateResponse>?) -> Unit
+    ) {
+        api.getAllCertificates(userId).enqueue(object : Callback<List<CertificateResponse>> {
+            override fun onResponse(
+                call: Call<List<CertificateResponse>>,
+                response: Response<List<CertificateResponse>>
+            ) {
+                if (response.isSuccessful) {
+                    val certificates = response.body()
+                    onResult(certificates)
+                    Log.d("Certificates", "Certificados recebidos com sucesso! Quantidade: ${certificates?.size}")
+                } else {
+                    onResult(null)
+                    Log.e("Certificates", "Erro ao buscar certificados: ${response.code()}")
+                }
+            }
+
+            override fun onFailure(call: Call<List<CertificateResponse>>, t: Throwable) {
+                onResult(null)
+                Log.e("Certificates", "Falha na requisição: ${t.message}")
+            }
+        })
+    }
+
 }

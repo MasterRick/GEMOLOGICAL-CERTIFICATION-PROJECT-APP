@@ -18,6 +18,7 @@ fun MainNavHost(navController: NavHostController, viewModel: MainViewModel) {
             RegisterScreen(navController = navController, viewModel = viewModel)
         }
         composable(BottomNavItem.Home.route) {
+            viewModel.loadInitialData()
             HomeScreen(navController = navController, viewModel = viewModel)
         }
         composable(BottomNavItem.History.route) {

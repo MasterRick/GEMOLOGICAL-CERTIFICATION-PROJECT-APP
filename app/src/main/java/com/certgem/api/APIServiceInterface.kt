@@ -4,6 +4,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface APIServiceInterface {
@@ -16,4 +17,7 @@ interface APIServiceInterface {
 
     @POST("usuario/sendEmailCodeGemologo")
     fun register(@Body request: CadastroRequest): Call<LoginResponse>
+
+    @GET("certificado/findAll/{userId}")
+    fun getAllCertificates(@Path("userId") userId: Long): Call<List<CertificateResponse>>
 }

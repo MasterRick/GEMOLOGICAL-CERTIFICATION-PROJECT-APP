@@ -89,9 +89,9 @@ fun HomeScreen(navController: NavController, viewModel: MainViewModel) {
             items(certificates.take(5)) { certificate -> // Mostra apenas os 5 mais recentes
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp)) {
-                        Text(certificate.gemName, style = MaterialTheme.typography.titleMedium)
-                        Text("Nº: ${certificate.number}", style = MaterialTheme.typography.bodySmall)
-                        Text("Proprietário: ${certificate.owner}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Nº: ${certificate.numeroCertificado}", style = MaterialTheme.typography.bodySmall)
+                        Text("Observações: ${certificate.observacoes}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Data: ${certificate.dataCriacao}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
